@@ -145,7 +145,8 @@ pub use ros_file_support::{NamedIntrinsicParameters, RosCameraInfo, RosMatrix};
 pub use ros_file_support::from_ros_yaml;
 
 /// Possible errors.
-#[cfg_attr(feature = "std", derive(thiserror::Error, Debug))]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(thiserror::Error))]
 #[non_exhaustive]
 pub enum Error {
     #[cfg_attr(feature = "std", error("invalid input"))]
