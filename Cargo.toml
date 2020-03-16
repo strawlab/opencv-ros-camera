@@ -1,0 +1,38 @@
+[package]
+name = "opencv-ros-camera"
+version = "0.1.0"
+authors = ["Andrew Straw <strawman@astraw.com>"]
+edition = "2018"
+description = "Geometric models of OpenCV/ROS cameras for photogrammetry"
+license = "MIT/Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/strawlab/opencv-ros-camera"
+keywords = ["computer", "vision", "photogrammetry"]
+categories = ["algorithms", "computer-vision", "no-std", "science", "science::robotics"]
+
+[dependencies]
+nalgebra = {version="0.20", default-features=false}
+cam-geom = {version="0.2", default-features=false}
+
+serde = {version="1.0", default-features=false, features=["derive"], optional=true}
+serde_yaml = {version="0.8", default-features=false, optional=true}
+thiserror = {version="1.0", optional=true}
+
+[dev-dependencies]
+approx = {version="0.3", default-features=false}
+
+[features]
+default = ["std"]
+
+# It would be nice if our serde-serialize feature did not
+# depend on std. Then we could use serde in no_std contexts.
+# The serde crate supports this. However, the following
+# are obstacles to this goal:
+# - serde_yaml requires std (as of serde_yaml 0.8)
+# - nalgebra/serde-serialize requires std (as of nalgebra 0.20)
+
+std = ["nalgebra/std", "cam-geom/std", "thiserror"]
+serde-serialize = ["std", "serde", "serde_yaml", "nalgebra/serde-serialize"]
+
+[package.metadata.docs.rs]
+features = ["serde-serialize"]
