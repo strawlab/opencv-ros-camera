@@ -206,6 +206,12 @@ pub struct RosOpenCvIntrinsics<R: RealField> {
     cache: Cache<R>,
 }
 
+impl<R: RealField> From<cam_geom::IntrinsicParametersPerspective<R>> for RosOpenCvIntrinsics<R> {
+    fn from(orig: cam_geom::IntrinsicParametersPerspective<R>) -> Self {
+        Self::from_params(orig.fx(), orig.skew(), orig.fy(), orig.cx(), orig.cy())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 struct Cache<R: RealField> {
     pnorm: MatrixMN<R, U3, U4>,
