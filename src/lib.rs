@@ -721,8 +721,6 @@ impl<'de, R: RealField + serde::Deserialize<'de>> serde::Deserialize<'de>
                 let distortion =
                     distortion.ok_or_else(|| de::Error::missing_field("distortion"))?;
                 let rect = rect.ok_or_else(|| de::Error::missing_field("rect"))?;
-                // Ok(RosOpenCvIntrinsics::from_components(p, k, distortion, rect))
-                // RosOpenCvIntrinsics::from_components(p, k, distortion, rect)
                 RosOpenCvIntrinsics::from_components(p, k, distortion, rect)
                     .map_err(|e| de::Error::custom(e))
             }
