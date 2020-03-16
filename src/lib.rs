@@ -235,6 +235,8 @@ pub struct UndistortedPixels<R: RealField, NPTS: Dim, STORAGE> {
 
 impl<R: RealField> RosOpenCvIntrinsics<R> {
     /// Construct from the individual components
+    ///
+    /// Returns `Err(Error::InvalidInput)` if `rect` cannot be inverted.
     pub fn from_components(
         p: MatrixMN<R, U3, U4>,
         k: MatrixN<R, U3>,
@@ -262,7 +264,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
 
     /// create a simple set of intrinsic parameters
     #[inline]
-    pub fn from_params(fx: R, skew: R, fy: R, cx: R, cy: R) -> Result<Self> {
+    pub fn from_params(fx: R, skew: R, fy: R, cx: R, cy: R) -> Self {
         Self::from_params_with_distortion(fx, skew, fy, cx, cy, Distortion::zero())
     }
 
@@ -274,15 +276,16 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         cx: R,
         cy: R,
         distortion: Distortion<R>,
-    ) -> Result<Self> {
+    ) -> Self {
         let zero: R = zero();
         let one: R = one();
         let p = MatrixMN::<R, U3, U4>::new(
             fx, skew, cx, zero, zero, fy, cy, zero, zero, zero, one, zero,
         );
         let k = MatrixMN::<R, U3, U3>::new(fx, skew, cx, zero, fy, cy, zero, zero, one);
-        let rect = MatrixMN::<R, U3, U3>::new(one, zero, zero, zero, one, zero, zero, zero, one);
-        Self::from_components(p, k, distortion, rect)
+        let rect = Matrix3::<R>::identity();
+        // Since rect can be inverted, this will not fail and we can unwrap.
+        Self::from_components(p, k, distortion, rect).unwrap()
     }
 
     /// project multiple pixels to 3D camera coords at a given distance from cam center
