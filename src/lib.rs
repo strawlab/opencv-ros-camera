@@ -615,6 +615,36 @@ impl<R: RealField> IntrinsicParameters<R> for RosOpenCvIntrinsics<R> {
     }
 }
 
+/// Extension trait to add `world_to_undistorted_pixel()` method.
+pub trait CameraExt<R: RealField> {
+    /// Convert 3D coordinates in the `WorldFrame` to undistorted pixel coordinates.
+    fn world_to_undistorted_pixel<NPTS, InStorage>(
+        &self,
+        world: &Points<cam_geom::WorldFrame, R, NPTS, InStorage>,
+    ) -> UndistortedPixels<R, NPTS, Owned<R, NPTS, U2>>
+    where
+        NPTS: Dim,
+        InStorage: Storage<R, NPTS, U3>,
+        DefaultAllocator: Allocator<R, NPTS, U3>,
+        DefaultAllocator: Allocator<R, NPTS, U2>;
+}
+
+impl<R: RealField> CameraExt<R> for cam_geom::Camera<R, RosOpenCvIntrinsics<R>> {
+    fn world_to_undistorted_pixel<NPTS, InStorage>(
+        &self,
+        world: &Points<cam_geom::WorldFrame, R, NPTS, InStorage>,
+    ) -> UndistortedPixels<R, NPTS, Owned<R, NPTS, U2>>
+    where
+        NPTS: Dim,
+        InStorage: Storage<R, NPTS, U3>,
+        DefaultAllocator: Allocator<R, NPTS, U3>,
+        DefaultAllocator: Allocator<R, NPTS, U2>,
+    {
+        let camera_frame = self.extrinsics().world_to_camera(&world);
+        self.intrinsics().camera_to_undistorted_pixel(&camera_frame)
+    }
+}
+
 #[cfg(feature = "serde-serialize")]
 impl<R: RealField + serde::Serialize> serde::Serialize for RosOpenCvIntrinsics<R> {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
