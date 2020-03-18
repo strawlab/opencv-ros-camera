@@ -3,6 +3,7 @@
 [![Crates.io](https://img.shields.io/crates/v/opencv-ros-camera.svg)](https://crates.io/crates/opencv-ros-camera)
 [![Documentation](https://docs.rs/opencv-ros-camera/badge.svg)](https://docs.rs/opencv-ros-camera/)
 [![Crate License](https://img.shields.io/crates/l/opencv-ros-camera.svg)](https://crates.io/crates/opencv-ros-camera)
+[![Dependency status](https://deps.rs/repo/github/strawlab/opencv-ros-camera/status.svg)](https://deps.rs/repo/github/strawlab/opencv-ros-camera)
 
 {{readme}}
 
