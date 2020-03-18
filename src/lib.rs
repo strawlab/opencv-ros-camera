@@ -422,6 +422,77 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         }
         result
     }
+
+    /// Convert 3D coordinates in the `CameraFrame` to undistorted pixel coordinates.
+    pub fn camera_to_undistorted_pixel<IN, NPTS>(
+        &self,
+        camera: &Points<CameraFrame, R, NPTS, IN>,
+    ) -> UndistortedPixels<R, NPTS, Owned<R, NPTS, U2>>
+    where
+        IN: Storage<R, NPTS, U3>,
+        NPTS: Dim,
+        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<R, U1, U2>,
+    {
+        let mut result = UndistortedPixels {
+            data: MatrixMN::zeros_generic(NPTS::from_usize(camera.data.nrows()), U2::from_usize(2)),
+        };
+
+        // TODO: can we remove this loop?
+        for i in 0..camera.data.nrows() {
+            let x = nalgebra::Point3::new(
+                camera.data[(i, 0)],
+                camera.data[(i, 1)],
+                camera.data[(i, 2)],
+            )
+            .to_homogeneous();
+            let rst = self.p * x;
+
+            result.data[(i, 0)] = rst[0] / rst[2];
+            result.data[(i, 1)] = rst[1] / rst[2];
+        }
+        result
+    }
+
+    /// Convert undistorted pixel coordinates to 3D coordinates in the `CameraFrame`.
+    pub fn undistorted_pixel_to_camera<IN, NPTS>(
+        &self,
+        undistorteds: &UndistortedPixels<R, NPTS, IN>,
+    ) -> RayBundle<CameraFrame, SharedOriginRayBundle<R>, R, NPTS, Owned<R, NPTS, U3>>
+    where
+        IN: Storage<R, NPTS, U2>,
+        NPTS: Dim,
+        DefaultAllocator: Allocator<R, NPTS, U3>,
+        DefaultAllocator: Allocator<R, U1, U2>,
+    {
+        let p = self.cache.pnorm;
+
+        let mut result = RayBundle::new_shared_zero_origin(MatrixMN::zeros_generic(
+            NPTS::from_usize(undistorteds.data.nrows()),
+            U3::from_usize(3),
+        ));
+
+        // TODO: eliminate this loop
+        for i in 0..undistorteds.data.nrows() {
+            // Create a slice view of a single pixel coordinate.
+            let undistorted = UndistortedPixels {
+                data: undistorteds.data.row(i),
+            };
+
+            let uv_rect_x = undistorted.data[(0, 0)];
+            let uv_rect_y = undistorted.data[(0, 1)];
+
+            // Convert undistorted point into camcoords.
+            let y = (uv_rect_y - p[(1, 2)] - p[(1, 3)]) / p[(1, 1)];
+            let x = (uv_rect_x - p[(0, 1)] * y - p[(0, 2)] - p[(0, 3)]) / p[(0, 0)];
+            let z = one();
+
+            result.data[(i, 0)] = x;
+            result.data[(i, 1)] = y;
+            result.data[(i, 2)] = z;
+        }
+        result
+    }
 }
 
 /// Specifies distortion using the Brown-Conrady "plumb bob" model.
@@ -511,51 +582,6 @@ impl<R: RealField> Distortion<R> {
     }
 }
 
-impl<R> RosOpenCvIntrinsics<R>
-where
-    R: RealField,
-{
-    /// Convert undistorted pixel coordinates to 3D coordinates in the `CameraFrame`.
-    pub fn undistorted_pixel_to_camera<IN, NPTS>(
-        &self,
-        undistorteds: &UndistortedPixels<R, NPTS, IN>,
-    ) -> RayBundle<CameraFrame, SharedOriginRayBundle<R>, R, NPTS, Owned<R, NPTS, U3>>
-    where
-        IN: Storage<R, NPTS, U2>,
-        NPTS: Dim,
-        DefaultAllocator: Allocator<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, U1, U2>,
-    {
-        let p = self.cache.pnorm;
-
-        let mut result = RayBundle::new_shared_zero_origin(MatrixMN::zeros_generic(
-            NPTS::from_usize(undistorteds.data.nrows()),
-            U3::from_usize(3),
-        ));
-
-        // TODO: eliminate this loop
-        for i in 0..undistorteds.data.nrows() {
-            // Create a slice view of a single pixel coordinate.
-            let undistorted = UndistortedPixels {
-                data: undistorteds.data.row(i),
-            };
-
-            let uv_rect_x = undistorted.data[(0, 0)];
-            let uv_rect_y = undistorted.data[(0, 1)];
-
-            // Convert undistorted point into camcoords.
-            let y = (uv_rect_y - p[(1, 2)] - p[(1, 3)]) / p[(1, 1)];
-            let x = (uv_rect_x - p[(0, 1)] * y - p[(0, 2)] - p[(0, 3)]) / p[(0, 0)];
-            let z = one();
-
-            result.data[(i, 0)] = x;
-            result.data[(i, 1)] = y;
-            result.data[(i, 2)] = z;
-        }
-        result
-    }
-}
-
 impl<R: RealField> IntrinsicParameters<R> for RosOpenCvIntrinsics<R> {
     type BundleType = SharedOriginRayBundle<R>;
 
@@ -584,31 +610,8 @@ impl<R: RealField> IntrinsicParameters<R> for RosOpenCvIntrinsics<R> {
         NPTS: Dim,
         DefaultAllocator: Allocator<R, NPTS, U2>,
     {
-        let mut result = Pixels::new(MatrixMN::zeros_generic(
-            NPTS::from_usize(camera.data.nrows()),
-            U2::from_usize(2),
-        ));
-
-        // TODO: can we remove this loop?
-        for i in 0..camera.data.nrows() {
-            let x = nalgebra::Point3::new(
-                camera.data[(i, 0)],
-                camera.data[(i, 1)],
-                camera.data[(i, 2)],
-            )
-            .to_homogeneous();
-            let rst = self.p * x;
-
-            let undistorted = UndistortedPixels {
-                data: nalgebra::MatrixMN::<R, U1, U2>::new(rst[0] / rst[2], rst[1] / rst[2]),
-            };
-
-            let pixel_row = self.distort::<U1, _>(&undistorted);
-            for j in 0..2 {
-                result.data[(i, j)] = pixel_row.data[(0, j)];
-            }
-        }
-        result
+        let undistorted = self.camera_to_undistorted_pixel(camera);
+        self.distort(&undistorted)
     }
 }
 
