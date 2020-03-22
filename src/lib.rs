@@ -102,7 +102,7 @@
 //! Run unit tests with:
 //!
 //! ```text
-//! cargo test --features std
+//! cargo test
 //! cargo test --features serde-serialize
 //! ```
 //!
