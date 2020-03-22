@@ -4,6 +4,7 @@
 [![Documentation](https://docs.rs/opencv-ros-camera/badge.svg)](https://docs.rs/opencv-ros-camera/)
 [![Crate License](https://img.shields.io/crates/l/opencv-ros-camera.svg)](https://crates.io/crates/opencv-ros-camera)
 [![Dependency status](https://deps.rs/repo/github/strawlab/opencv-ros-camera/status.svg)](https://deps.rs/repo/github/strawlab/opencv-ros-camera)
+[![build](https://github.com/strawlab/opencv-ros-camera/workflows/build/badge.svg?branch=master)](https://github.com/strawlab/opencv-ros-camera/actions?query=branch%3Amaster)
 
 Geometric models of OpenCV/ROS cameras for photogrammetry
 
@@ -109,7 +110,7 @@ cargo check --no-default-features --target thumbv7em-none-eabihf
 Run unit tests with:
 
 ```
-cargo test --features std
+cargo test
 cargo test --features serde-serialize
 ```
 
