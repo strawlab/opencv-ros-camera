@@ -134,19 +134,19 @@ where
     DefaultAllocator: Allocator<R, D2>,
 {
     if ros_matrix.rows as usize != D1::dim() {
-        return Err(Error::BadMatrixSize.into());
+        return Err(Error::BadMatrixSize);
     }
     if ros_matrix.cols as usize != D2::dim() {
-        return Err(Error::BadMatrixSize.into());
+        return Err(Error::BadMatrixSize);
     }
     if ros_matrix.data.len() != (ros_matrix.rows * ros_matrix.cols) as usize {
-        return Err(Error::BadMatrixSize.into());
+        return Err(Error::BadMatrixSize);
     }
     let data_converted: Vec<R> = ros_matrix
         .data
         .clone()
         .into_iter()
-        .map(|x| na::convert(x))
+        .map(na::convert)
         .collect();
     Ok(MatrixMN::from_row_slice_generic(
         D1::name(),
@@ -184,7 +184,7 @@ impl<R: RealField> std::convert::TryFrom<RosCameraInfo<R>> for NamedIntrinsicPar
             let p = get_nalgebra_matrix(&ros_camera.projection_matrix)?;
             let k: MatrixMN<R, U3, U3> = get_nalgebra_matrix(&ros_camera.camera_matrix)?;
             if ros_camera.distortion_model != "plumb_bob" {
-                return Err(Error::UnknownDistortionModel.into());
+                return Err(Error::UnknownDistortionModel);
             }
             let d: RowVector5<R> = get_nalgebra_matrix(&ros_camera.distortion_coefficients)?;
             let rect: Matrix3<R> = get_nalgebra_matrix(&ros_camera.rectification_matrix)?;

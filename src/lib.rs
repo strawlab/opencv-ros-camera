@@ -522,7 +522,7 @@ impl<R: RealField> Distortion<R> {
 
     /// The first radial distortion term, sometimes called `k1` (mutable reference).
     #[inline]
-    pub fn radial1_mut<'a>(&'a mut self) -> &'a mut R {
+    pub fn radial1_mut(&mut self) -> &mut R {
         &mut self.0[0]
     }
 
@@ -534,7 +534,7 @@ impl<R: RealField> Distortion<R> {
 
     /// The second radial distortion term, sometimes called `k2` (mutable reference).
     #[inline]
-    pub fn radial2_mut<'a>(&'a mut self) -> &'a mut R {
+    pub fn radial2_mut(&mut self) -> &mut R {
         &mut self.0[1]
     }
 
@@ -546,7 +546,7 @@ impl<R: RealField> Distortion<R> {
 
     /// The first tangential distortion term, sometimes called `p1` (mutable reference).
     #[inline]
-    pub fn tangential1_mut<'a>(&'a mut self) -> &'a mut R {
+    pub fn tangential1_mut(&mut self) -> &mut R {
         &mut self.0[2]
     }
 
@@ -558,7 +558,7 @@ impl<R: RealField> Distortion<R> {
 
     /// The second tangential distortion term, sometimes called `p2` (mutable reference).
     #[inline]
-    pub fn tangential2_mut<'a>(&'a mut self) -> &'a mut R {
+    pub fn tangential2_mut(&mut self) -> &mut R {
         &mut self.0[3]
     }
 
@@ -570,7 +570,7 @@ impl<R: RealField> Distortion<R> {
 
     /// The third radial distortion term, sometimes called `k3` (mutable reference).
     #[inline]
-    pub fn radial3_mut<'a>(&'a mut self) -> &'a mut R {
+    pub fn radial3_mut(&mut self) -> &mut R {
         &mut self.0[4]
     }
 
