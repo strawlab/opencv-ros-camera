@@ -11,8 +11,8 @@ keywords = ["computer", "vision", "photogrammetry"]
 categories = ["algorithms", "computer-vision", "no-std", "science", "science::robotics"]
 
 [dependencies]
-nalgebra = {version="0.23", default-features=false, features=["libm"]}
-cam-geom = {version="0.4", default-features=false}
+nalgebra = {version="0.24", default-features=false, features=["libm"]}
+cam-geom = {version="0.5", default-features=false}
 
 serde = {version="1.0", default-features=false, features=["derive"], optional=true}
 serde_yaml = {version="0.8", default-features=false, optional=true}
