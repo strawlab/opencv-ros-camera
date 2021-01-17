@@ -507,6 +507,14 @@ impl<R: RealField> Distortion<R> {
         Distortion(v)
     }
 
+    /// OpenCV ordered vector of distortion terms.
+    ///
+    /// The order is [radial1, radial2, tangential1, tangential2, radial3].
+    #[inline]
+    pub fn opencv_vec(&self) -> &Vector5<R> {
+        &self.0
+    }
+
     /// Construct a zero distortion model.
     #[inline]
     pub fn zero() -> Self {
