@@ -74,7 +74,7 @@
 //!   data: [444.369750976562, 0, 337.107817516087, 0, 0, 474.186859130859, 225.062742824321, 0, 0, 0, 1, 0]";
 //!
 //! // The ROS YAML file does not contain the pose (no extrinsic parameters). Here we
-//! // specify them directly. The camera is at (10,0,0), looing at (0,0,0), with up (0,0,1).
+//! // specify them directly. The camera is at (10,0,0), looking at (0,0,0), with up (0,0,1).
 //! let camcenter = Vector3::new(10.0, 0.0, 0.0);
 //! let lookat = Vector3::new(0.0, 0.0, 0.0);
 //! let up = Unit::new_normalize(Vector3::new(0.0, 0.0, 1.0));
