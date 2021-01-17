@@ -498,7 +498,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
 /// Specifies distortion using the Brown-Conrady "plumb bob" model.
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
-pub struct Distortion<R: RealField>(Vector5<R>);
+pub struct Distortion<R: RealField>(pub Vector5<R>);
 
 impl<R: RealField> Distortion<R> {
     /// build from vector ordered [radial1, radial2, tangential1, tangential2, radial3]
