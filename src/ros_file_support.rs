@@ -3,16 +3,18 @@
 #[cfg(feature = "serde-serialize")]
 use std::io::Read;
 
-use na::allocator::Allocator;
-use na::core::dimension::DimMin;
-use na::core::dimension::U3;
-use na::core::{Matrix3, MatrixMN, RowVector5};
+use na::{
+    allocator::Allocator,
+    core::{
+        dimension::{DimMin, U3},
+        Matrix3, MatrixMN, RowVector5,
+    },
+};
 
 use na::{DefaultAllocator, DimName, RealField};
 use nalgebra as na;
 
-use crate::RosOpenCvIntrinsics;
-use crate::{Error, Result};
+use crate::{Error, Result, RosOpenCvIntrinsics};
 
 #[cfg(feature = "serde-serialize")]
 use serde::{Deserialize, Serialize};
