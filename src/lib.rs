@@ -127,8 +127,8 @@ use serde::{Deserialize, Serialize};
 use nalgebra::{
     allocator::Allocator,
     base::storage::{Owned, Storage},
-    convert, one, zero, DefaultAllocator, Dim, Matrix3, MatrixMN, MatrixN, RealField, Vector3,
-    Vector5, U1, U2, U3, U4,
+    convert, one, zero, DefaultAllocator, Dim, Matrix3, MatrixMN, MatrixN, RealField, Vector2,
+    Vector3, Vector5, U1, U2, U3, U4,
 };
 
 use cam_geom::{
@@ -364,6 +364,23 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
         DefaultAllocator: Allocator<R, NPTS, U2>,
     {
+        self.undistort_ext(distorted, None)
+    }
+
+    /// project multiple pixels to 3D camera coords at a given distance from cam center
+    ///
+    /// The method is [undistort](RosOpenCvIntrinsics::undistort) analogue with an additional termination criteria.
+    pub fn undistort_ext<NPTS, IN>(
+        &self,
+        distorted: &Pixels<R, NPTS, IN>,
+        criteria: impl Into<Option<TermCriteria>>,
+    ) -> UndistortedPixels<R, NPTS, Owned<R, NPTS, U2>>
+    where
+        NPTS: Dim,
+        IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
+        DefaultAllocator: Allocator<R, NPTS, U2>,
+    {
+        let criteria = criteria.into().unwrap_or_else(|| TermCriteria::MaxIter(5));
         let mut result = UndistortedPixels {
             data: MatrixMN::zeros_generic(
                 NPTS::from_usize(distorted.data.nrows()),
@@ -398,7 +415,16 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
 
             let mut x = xd;
             let mut y = yd;
-            for _ in 0..5 {
+            let mut count = 0;
+
+            loop {
+                if let TermCriteria::MaxIter(max_count) = criteria {
+                    count += 1;
+                    if count > max_count {
+                        break;
+                    }
+                }
+
                 let r2 = x * x + y * y;
                 let icdist =
                     one / (one + ((d.radial3() * r2 + d.radial2()) * r2 + d.radial1()) * r2);
@@ -406,7 +432,29 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
                 let delta_y = t1 * (r2 + two * y * y) + two * t2 * x * y;
                 x = (xd - delta_x) * icdist;
                 y = (yd - delta_y) * icdist;
+
+                if let TermCriteria::Eps(eps) = criteria {
+                    let r2 = x * x + y * y;
+                    let cdist = one + ((d.radial3() * r2 + d.radial2()) * r2 + d.radial1()) * r2;
+                    let delta_x = two * t1 * x * y + t2 * (r2 + two * x * x);
+                    let delta_y = t1 * (r2 + two * y * y) + two * t2 * x * y;
+                    let xp0 = x * cdist + delta_x;
+                    let yp0 = y * cdist + delta_y;
+
+                    let xywt = self.cache.rti * Vector3::new(xp0, yp0, one);
+                    let xp = xywt[0] / xywt[2];
+                    let yp = xywt[1] / xywt[2];
+
+                    let up = x * fxp + cxp;
+                    let vp = y * fyp + cyp;
+
+                    let error = (Vector2::new(xp, yp) - Vector2::new(up, vp)).norm();
+                    if error < convert(eps) {
+                        break;
+                    }
+                }
             }
+
             let xp = x;
             let yp = y;
 
@@ -798,4 +846,13 @@ fn _test_intrinsics_is_deserialize() {
     // Compile-time test to ensure RosOpenCvIntrinsics implements Deserialize trait.
     fn implements<'de, T: serde::Deserialize<'de>>() {}
     implements::<RosOpenCvIntrinsics<f64>>();
+}
+
+/// The type defines termination criteria for iterative algorithms.
+#[derive(Debug, Clone, Copy)]
+pub enum TermCriteria {
+    /// The maximum number of iterations.
+    MaxIter(usize),
+    /// The desired accuracy at which the iterative algorithm stops.
+    Eps(f64),
 }
