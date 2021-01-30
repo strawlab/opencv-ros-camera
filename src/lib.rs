@@ -234,7 +234,7 @@ pub struct UndistortedPixels<R: RealField, NPTS: Dim, STORAGE> {
 }
 
 impl<R: RealField> RosOpenCvIntrinsics<R> {
-    /// Construct from the individual components
+    /// Construct intrinsics from raw components.
     ///
     /// Returns `Err(Error::InvalidInput)` if `rect` cannot be inverted.
     pub fn from_components(
@@ -262,13 +262,22 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         })
     }
 
-    /// create a simple set of intrinsic parameters
+    /// Construct intrinsics from individual parameters with no distortion.
+    ///
+    /// `fx` and `fy` are the horizontal and vertical focal lengths. `skew` is
+    /// the pixel skew (typically near zero). `cx` and `cy` is the center of the
+    /// optical axis in pixel coordinates.
     #[inline]
     pub fn from_params(fx: R, skew: R, fy: R, cx: R, cy: R) -> Self {
         Self::from_params_with_distortion(fx, skew, fy, cx, cy, Distortion::zero())
     }
 
-    /// create intrinsic parameters with distorion
+    /// Construct intrinsics from individual parameters.
+    ///
+    /// `fx` and `fy` are the horizontal and vertical focal lengths. `skew` is
+    /// the pixel skew (typically near zero). `cx` and `cy` is the center of the
+    /// optical axis in pixel coordinates. `distortion` is a vector of the
+    /// distortion terms.
     pub fn from_params_with_distortion(
         fx: R,
         skew: R,
@@ -288,7 +297,11 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         Self::from_components(p, k, distortion, rect).unwrap()
     }
 
-    /// project multiple pixels to 3D camera coords at a given distance from cam center
+    /// Convert undistorted pixel coordinates to distorted pixel coordinates.
+    ///
+    /// This will take coordinates from, e.g. a linear camera model, warp them
+    /// into their distorted counterparts. This distortion thus models the
+    /// action of a real lens.
     pub fn distort<NPTS, IN>(
         &self,
         undistorted: &UndistortedPixels<R, NPTS, IN>,
@@ -354,7 +367,15 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         result
     }
 
-    /// project multiple pixels to 3D camera coords at a given distance from cam center
+    /// Convert distorted pixel coordinates to undistorted pixel coordinates.
+    ///
+    /// This will take distorted coordinates from, e.g. detections from a real
+    /// camera image, and undo the effect of the distortion model. This
+    /// "undistortion" thus converts coordinates from a real lens into
+    /// coordinates that can be used with a linear camera model.
+    ///
+    /// This method calls [undistort_ext](Self::undistort_ext) using the default
+    /// termination criteria.
     pub fn undistort<NPTS, IN>(
         &self,
         distorted: &Pixels<R, NPTS, IN>,
@@ -367,9 +388,15 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         self.undistort_ext(distorted, None)
     }
 
-    /// project multiple pixels to 3D camera coords at a given distance from cam center
+    /// Convert distorted pixel coordinates to undistorted pixel coordinates.
     ///
-    /// The method is [undistort](RosOpenCvIntrinsics::undistort) analogue with an additional termination criteria.
+    /// This will take distorted coordinates from, e.g. detections from a real
+    /// camera image, and undo the effect of the distortion model. This
+    /// "undistortion" thus converts coordinates from a real lens into
+    /// coordinates that can be used with a linear camera model.
+    ///
+    /// If the termination criteria are not specified, the default of five
+    /// iterations is used.
     pub fn undistort_ext<NPTS, IN>(
         &self,
         distorted: &Pixels<R, NPTS, IN>,
@@ -471,7 +498,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         result
     }
 
-    /// Convert 3D coordinates in the `CameraFrame` to undistorted pixel coordinates.
+    /// Convert 3D coordinates in `CameraFrame` to undistorted pixel coords.
     pub fn camera_to_undistorted_pixel<IN, NPTS>(
         &self,
         camera: &Points<CameraFrame, R, NPTS, IN>,
@@ -502,7 +529,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         result
     }
 
-    /// Convert undistorted pixel coordinates to 3D coordinates in the `CameraFrame`.
+    /// Convert undistorted pixel coordinates to 3D coords in the `CameraFrame`.
     pub fn undistorted_pixel_to_camera<IN, NPTS>(
         &self,
         undistorteds: &UndistortedPixels<R, NPTS, IN>,
