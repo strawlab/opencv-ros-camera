@@ -7,7 +7,7 @@ use na::{
     allocator::Allocator,
     core::{
         dimension::{DimMin, U3},
-        Matrix3, MatrixMN, RowVector5,
+        Matrix3, OMatrix, RowVector5,
     },
 };
 
@@ -92,7 +92,7 @@ pub struct RosMatrix<R: RealField> {
     pub data: Vec<R>,
 }
 
-fn to_ros<R: RealField, SS: DimName, OS: DimName>(arr: na::MatrixMN<R, SS, OS>) -> RosMatrix<R>
+fn to_ros<R: RealField, SS: DimName, OS: DimName>(arr: na::OMatrix<R, SS, OS>) -> RosMatrix<R>
 where
     DefaultAllocator: Allocator<R, SS, SS>,
     DefaultAllocator: Allocator<R, SS>,
@@ -123,7 +123,7 @@ pub(crate) fn to_ros_matrix<R: RealField>(rows: usize, cols: usize, data: &[R]) 
 
 pub(crate) fn get_nalgebra_matrix<R, D1, D2>(
     ros_matrix: &RosMatrix<R>,
-) -> Result<MatrixMN<R, D1, D2>>
+) -> Result<OMatrix<R, D1, D2>>
 where
     R: RealField,
     D1: DimName,
@@ -150,7 +150,7 @@ where
         .into_iter()
         .map(na::convert)
         .collect();
-    Ok(MatrixMN::from_row_slice_generic(
+    Ok(OMatrix::from_row_slice_generic(
         D1::name(),
         D2::name(),
         &data_converted,
@@ -184,7 +184,7 @@ impl<R: RealField> std::convert::TryFrom<RosCameraInfo<R>> for NamedIntrinsicPar
     fn try_from(ros_camera: RosCameraInfo<R>) -> Result<NamedIntrinsicParameters<R>> {
         let intrinsics = {
             let p = get_nalgebra_matrix(&ros_camera.projection_matrix)?;
-            let k: MatrixMN<R, U3, U3> = get_nalgebra_matrix(&ros_camera.camera_matrix)?;
+            let k: OMatrix<R, U3, U3> = get_nalgebra_matrix(&ros_camera.camera_matrix)?;
             if ros_camera.distortion_model != "plumb_bob" {
                 return Err(Error::UnknownDistortionModel);
             }
