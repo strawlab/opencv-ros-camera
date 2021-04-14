@@ -127,8 +127,8 @@ use serde::{Deserialize, Serialize};
 use nalgebra::{
     allocator::Allocator,
     base::storage::{Owned, Storage},
-    convert, one, zero, DefaultAllocator, Dim, Matrix3, OMatrix, RealField, Vector2,
-    Vector3, Vector5, U1, U2, U3, U4,
+    convert, one, zero, DefaultAllocator, Dim, Matrix3, OMatrix, RealField, SMatrix, Vector2,
+    Vector3, Vector5, U1, U2, U3,
 };
 
 use cam_geom::{
@@ -197,13 +197,13 @@ pub struct RosOpenCvIntrinsics<R: RealField> {
     /// If these intrinsics have zero skew, they are "opencv compatible" and this is `true`.
     pub is_opencv_compatible: bool,
     /// The intrinsic parameter matrix `P`.
-    pub p: OMatrix<R, U3, U4>,
+    pub p: SMatrix<R, 3, 4>,
     /// The intrinsic parameter matrix `K`. Scaled from `P`.
-    pub k: OMatrix<R, U3, U3>,
+    pub k: SMatrix<R, 3, 3>,
     /// The non-linear distortion parameters `D` specifying image warping.
     pub distortion: Distortion<R>,
     /// The stereo rectification matrix.
-    pub rect: OMatrix<R, U3, U3>,
+    pub rect: SMatrix<R, 3, 3>,
     cache: Cache<R>,
 }
 
@@ -215,7 +215,7 @@ impl<R: RealField> From<cam_geom::IntrinsicParametersPerspective<R>> for RosOpen
 
 #[derive(Debug, Clone, PartialEq)]
 struct Cache<R: RealField> {
-    pnorm: OMatrix<R, U3, U4>,
+    pnorm: SMatrix<R, 3, 4>,
     rect_t: Matrix3<R>,
     rti: Matrix3<R>,
 }
@@ -238,10 +238,10 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     ///
     /// Returns `Err(Error::InvalidInput)` if `rect` cannot be inverted.
     pub fn from_components(
-        p: OMatrix<R, U3, U4>,
-        k: OMatrix<R, U3, U3>,
+        p: SMatrix<R, 3, 4>,
+        k: SMatrix<R, 3, 3>,
         distortion: Distortion<R>,
-        rect: OMatrix<R, U3, U3>,
+        rect: SMatrix<R, 3, 3>,
     ) -> Result<Self> {
         let is_opencv_compatible = p[(0, 1)] == zero();
         let pnorm = p / p[(2, 2)];
@@ -288,10 +288,10 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     ) -> Self {
         let zero: R = zero();
         let one: R = one();
-        let p = OMatrix::<R, U3, U4>::new(
+        let p = SMatrix::<R, 3, 4>::new(
             fx, skew, cx, zero, zero, fy, cy, zero, zero, zero, one, zero,
         );
-        let k = OMatrix::<R, U3, U3>::new(fx, skew, cx, zero, fy, cy, zero, zero, one);
+        let k = SMatrix::<R, 3, 3>::new(fx, skew, cx, zero, fy, cy, zero, zero, one);
         let rect = Matrix3::<R>::identity();
         // Since rect can be inverted, this will not fail and we can unwrap.
         Self::from_components(p, k, distortion, rect).unwrap()

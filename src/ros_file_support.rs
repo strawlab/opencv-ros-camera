@@ -5,10 +5,7 @@ use std::io::Read;
 
 use na::{
     allocator::Allocator,
-    core::{
-        dimension::{DimMin, U3},
-        Matrix3, OMatrix, RowVector5,
-    },
+    core::{dimension::DimMin, Matrix3, OMatrix, RowVector5, SMatrix},
 };
 
 use na::{DefaultAllocator, DimName, RealField};
@@ -184,7 +181,7 @@ impl<R: RealField> std::convert::TryFrom<RosCameraInfo<R>> for NamedIntrinsicPar
     fn try_from(ros_camera: RosCameraInfo<R>) -> Result<NamedIntrinsicParameters<R>> {
         let intrinsics = {
             let p = get_nalgebra_matrix(&ros_camera.projection_matrix)?;
-            let k: OMatrix<R, U3, U3> = get_nalgebra_matrix(&ros_camera.camera_matrix)?;
+            let k: SMatrix<R, 3, 3> = get_nalgebra_matrix(&ros_camera.camera_matrix)?;
             if ros_camera.distortion_model != "plumb_bob" {
                 return Err(Error::UnknownDistortionModel);
             }
