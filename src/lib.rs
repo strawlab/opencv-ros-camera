@@ -302,17 +302,8 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
             one.clone(),
             zero.clone(),
         );
-        let k = SMatrix::<R, 3, 3>::new(
-            fx.clone(),
-            skew.clone(),
-            cx.clone(),
-            zero.clone(),
-            fy.clone(),
-            cy.clone(),
-            zero.clone(),
-            zero.clone(),
-            one.clone(),
-        );
+        let k =
+            SMatrix::<R, 3, 3>::new(fx, skew, cx, zero.clone(), fy, cy, zero.clone(), zero, one);
         let rect = Matrix3::<R>::identity();
         // Since rect can be inverted, this will not fail and we can unwrap.
         Self::from_components(p, k, distortion, rect).unwrap()
@@ -323,6 +314,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     /// This will take coordinates from, e.g. a linear camera model, warp them
     /// into their distorted counterparts. This distortion thus models the
     /// action of a real lens.
+    #[allow(clippy::many_single_char_names)]
     pub fn distort<NPTS, IN>(
         &self,
         undistorted: &UndistortedPixels<R, NPTS, IN>,
@@ -425,6 +417,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     ///
     /// If the termination criteria are not specified, the default of five
     /// iterations is used.
+    #[allow(clippy::many_single_char_names)]
     pub fn undistort_ext<NPTS, IN>(
         &self,
         distorted: &Pixels<R, NPTS, IN>,
@@ -435,7 +428,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
         DefaultAllocator: Allocator<R, NPTS, U2>,
     {
-        let criteria = criteria.into().unwrap_or_else(|| TermCriteria::MaxIter(5));
+        let criteria = criteria.into().unwrap_or(TermCriteria::MaxIter(5));
         let mut result = UndistortedPixels {
             data: OMatrix::zeros_generic(
                 NPTS::from_usize(distorted.data.nrows()),
