@@ -244,10 +244,10 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         rect: SMatrix<R, 3, 3>,
     ) -> Result<Self> {
         let is_opencv_compatible = p[(0, 1)] == zero();
-        let pnorm = p / p[(2, 2)];
+        let pnorm = p.clone() / p[(2, 2)].clone();
         let rect_t = rect.transpose();
         let mut rti = Matrix3::<R>::identity();
-        if !nalgebra::linalg::try_invert_to(rect_t, &mut rti) {
+        if !nalgebra::linalg::try_invert_to(rect_t.clone(), &mut rti) {
             return Err(Error::InvalidInput);
         }
 
@@ -289,9 +289,30 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         let zero: R = zero();
         let one: R = one();
         let p = SMatrix::<R, 3, 4>::new(
-            fx, skew, cx, zero, zero, fy, cy, zero, zero, zero, one, zero,
+            fx.clone(),
+            skew.clone(),
+            cx.clone(),
+            zero.clone(),
+            zero.clone(),
+            fy.clone(),
+            cy.clone(),
+            zero.clone(),
+            zero.clone(),
+            zero.clone(),
+            one.clone(),
+            zero.clone(),
         );
-        let k = SMatrix::<R, 3, 3>::new(fx, skew, cx, zero, fy, cy, zero, zero, one);
+        let k = SMatrix::<R, 3, 3>::new(
+            fx.clone(),
+            skew.clone(),
+            cx.clone(),
+            zero.clone(),
+            fy.clone(),
+            cy.clone(),
+            zero.clone(),
+            zero.clone(),
+            one.clone(),
+        );
         let rect = Matrix3::<R>::identity();
         // Since rect can be inverted, this will not fail and we can unwrap.
         Self::from_components(p, k, distortion, rect).unwrap()
@@ -317,12 +338,12 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         ));
 
         let p = &self.p;
-        let fx = p[(0, 0)];
-        let cx = p[(0, 2)];
-        let tx = p[(0, 3)];
-        let fy = p[(1, 1)];
-        let cy = p[(1, 2)];
-        let ty = p[(1, 3)];
+        let fx = p[(0, 0)].clone();
+        let cx = p[(0, 2)].clone();
+        let tx = p[(0, 3)].clone();
+        let fy = p[(1, 1)].clone();
+        let cy = p[(1, 2)].clone();
+        let ty = p[(1, 3)].clone();
 
         let one: R = one();
         let two: R = convert(2.0);
@@ -335,31 +356,38 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         let k3 = d.radial3();
 
         let k = &self.k;
-        let kfx = k[(0, 0)];
-        let kcx = k[(0, 2)];
-        let kfy = k[(1, 1)];
-        let kcy = k[(1, 2)];
+        let kfx = k[(0, 0)].clone();
+        let kcx = k[(0, 2)].clone();
+        let kfy = k[(1, 1)].clone();
+        let kcy = k[(1, 2)].clone();
 
         for i in 0..undistorted.data.nrows() {
-            let x = (undistorted.data[(i, 0)] - cx - tx) / fx;
-            let y = (undistorted.data[(i, 1)] - cy - ty) / fy;
+            let x = (undistorted.data[(i, 0)].clone() - cx.clone() - tx.clone()) / fx.clone();
+            let y = (undistorted.data[(i, 1)].clone() - cy.clone() - ty.clone()) / fy.clone();
 
-            let xy1 = Vector3::new(x, y, one);
-            let xyw = self.cache.rect_t * xy1;
-            let xp = xyw[0] / xyw[2];
-            let yp = xyw[1] / xyw[2];
+            let xy1 = Vector3::new(x.clone(), y.clone(), one.clone());
+            let xyw = self.cache.rect_t.clone() * xy1;
+            let xp = xyw[0].clone() / xyw[2].clone();
+            let yp = xyw[1].clone() / xyw[2].clone();
 
-            let r2 = xp * xp + yp * yp;
-            let r4 = r2 * r2;
-            let r6 = r4 * r2;
-            let a1 = two * xp * yp;
+            let r2 = xp.clone() * xp.clone() + yp.clone() * yp.clone();
+            let r4 = r2.clone() * r2.clone();
+            let r6 = r4.clone() * r2.clone();
+            let a1 = two.clone() * xp.clone() * yp.clone();
 
-            let barrel = one + k1 * r2 + k2 * r4 + k3 * r6;
-            let xpp = xp * barrel + p1 * a1 + p2 * (r2 + two * (xp * xp));
-            let ypp = yp * barrel + p1 * (r2 + two * (yp * yp)) + p2 * a1;
+            let barrel = one.clone()
+                + k1.clone() * r2.clone()
+                + k2.clone() * r4.clone()
+                + k3.clone() * r6.clone();
+            let xpp = xp.clone() * barrel.clone()
+                + p1.clone() * a1.clone()
+                + p2.clone() * (r2.clone() + two.clone() * (xp.clone() * xp.clone()));
+            let ypp = yp.clone() * barrel.clone()
+                + p1.clone() * (r2.clone() + two.clone() * (yp.clone() * yp.clone()))
+                + p2.clone() * a1.clone();
 
-            let u = xpp * kfx + kcx;
-            let v = ypp * kfy + kcy;
+            let u = xpp.clone() * kfx.clone() + kcx.clone();
+            let v = ypp.clone() * kfy.clone() + kcy.clone();
 
             result.data[(i, 0)] = u;
             result.data[(i, 1)] = v;
@@ -416,16 +444,16 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         };
 
         let k = &self.k;
-        let fx = k[(0, 0)];
-        let cx = k[(0, 2)];
-        let fy = k[(1, 1)];
-        let cy = k[(1, 2)];
+        let fx = k[(0, 0)].clone();
+        let cx = k[(0, 2)].clone();
+        let fy = k[(1, 1)].clone();
+        let cy = k[(1, 2)].clone();
 
         let p = &self.p;
-        let fxp = p[(0, 0)];
-        let cxp = p[(0, 2)];
-        let fyp = p[(1, 1)];
-        let cyp = p[(1, 2)];
+        let fxp = p[(0, 0)].clone();
+        let cxp = p[(0, 2)].clone();
+        let fyp = p[(1, 1)].clone();
+        let cyp = p[(1, 2)].clone();
 
         let d = &self.distortion;
 
@@ -437,11 +465,11 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
 
         for i in 0..distorted.data.nrows() {
             // Apply intrinsic parameters to get normalized, distorted coordinates
-            let xd = (distorted.data[(i, 0)] - cx) / fx;
-            let yd = (distorted.data[(i, 1)] - cy) / fy;
+            let xd = (distorted.data[(i, 0)].clone() - cx.clone()) / fx.clone();
+            let yd = (distorted.data[(i, 1)].clone() - cy.clone()) / fy.clone();
 
-            let mut x = xd;
-            let mut y = yd;
+            let mut x = xd.clone();
+            let mut y = yd.clone();
             let mut count = 0;
 
             loop {
@@ -452,28 +480,36 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
                     }
                 }
 
-                let r2 = x * x + y * y;
-                let icdist =
-                    one / (one + ((d.radial3() * r2 + d.radial2()) * r2 + d.radial1()) * r2);
-                let delta_x = two * t1 * x * y + t2 * (r2 + two * x * x);
-                let delta_y = t1 * (r2 + two * y * y) + two * t2 * x * y;
-                x = (xd - delta_x) * icdist;
-                y = (yd - delta_y) * icdist;
+                let r2 = x.clone() * x.clone() + y.clone() * y.clone();
+                let icdist = one.clone()
+                    / (one.clone()
+                        + ((d.radial3() * r2.clone() + d.radial2()) * r2.clone() + d.radial1())
+                            * r2.clone());
+                let delta_x = two.clone() * t1.clone() * x.clone() * y.clone()
+                    + t2.clone() * (r2.clone() + two.clone() * x.clone() * x.clone());
+                let delta_y = t1.clone() * (r2.clone() + two.clone() * y.clone() * y.clone())
+                    + two.clone() * t2.clone() * x.clone() * y.clone();
+                x = (xd.clone() - delta_x) * icdist.clone();
+                y = (yd.clone() - delta_y) * icdist.clone();
 
                 if let TermCriteria::Eps(eps) = criteria {
-                    let r2 = x * x + y * y;
-                    let cdist = one + ((d.radial3() * r2 + d.radial2()) * r2 + d.radial1()) * r2;
-                    let delta_x = two * t1 * x * y + t2 * (r2 + two * x * x);
-                    let delta_y = t1 * (r2 + two * y * y) + two * t2 * x * y;
-                    let xp0 = x * cdist + delta_x;
-                    let yp0 = y * cdist + delta_y;
+                    let r2 = x.clone() * x.clone() + y.clone() * y.clone();
+                    let cdist = one.clone()
+                        + ((d.radial3() * r2.clone() + d.radial2()) * r2.clone() + d.radial1())
+                            * r2.clone();
+                    let delta_x = two.clone() * t1.clone() * x.clone() * y.clone()
+                        + t2.clone() * (r2.clone() + two.clone() * x.clone() * x.clone());
+                    let delta_y = t1.clone() * (r2.clone() + two.clone() * y.clone() * y.clone())
+                        + two.clone() * t2.clone() * x.clone() * y.clone();
+                    let xp0 = x.clone() * cdist.clone() + delta_x.clone();
+                    let yp0 = y.clone() * cdist.clone() + delta_y.clone();
 
-                    let xywt = self.cache.rti * Vector3::new(xp0, yp0, one);
-                    let xp = xywt[0] / xywt[2];
-                    let yp = xywt[1] / xywt[2];
+                    let xywt = self.cache.rti.clone() * Vector3::new(xp0, yp0, one.clone());
+                    let xp = xywt[0].clone() / xywt[2].clone();
+                    let yp = xywt[1].clone() / xywt[2].clone();
 
-                    let up = x * fxp + cxp;
-                    let vp = y * fyp + cyp;
+                    let up = x.clone() * fxp.clone() + cxp.clone();
+                    let vp = y.clone() * fyp.clone() + cyp.clone();
 
                     let error = (Vector2::new(xp, yp) - Vector2::new(up, vp)).norm();
                     if error < convert(eps) {
@@ -485,15 +521,15 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
             let xp = x;
             let yp = y;
 
-            let uh = Vector3::new(xp, yp, one);
-            let xywt = self.cache.rti * uh;
-            let x = xywt[0] / xywt[2];
-            let y = xywt[1] / xywt[2];
+            let uh = Vector3::new(xp.clone(), yp.clone(), one.clone());
+            let xywt = self.cache.rti.clone() * uh.clone();
+            let x = xywt[0].clone() / xywt[2].clone();
+            let y = xywt[1].clone() / xywt[2].clone();
 
-            let up = x * fxp + cxp;
-            let vp = y * fyp + cyp;
-            result.data[(i, 0)] = up;
-            result.data[(i, 1)] = vp;
+            let up = x.clone() * fxp.clone() + cxp.clone();
+            let vp = y.clone() * fyp.clone() + cyp.clone();
+            result.data[(i, 0)] = up.clone();
+            result.data[(i, 1)] = vp.clone();
         }
         result
     }
@@ -516,15 +552,15 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         // TODO: can we remove this loop?
         for i in 0..camera.data.nrows() {
             let x = nalgebra::Point3::new(
-                camera.data[(i, 0)],
-                camera.data[(i, 1)],
-                camera.data[(i, 2)],
+                camera.data[(i, 0)].clone(),
+                camera.data[(i, 1)].clone(),
+                camera.data[(i, 2)].clone(),
             )
             .to_homogeneous();
-            let rst = self.p * x;
+            let rst = self.p.clone() * x;
 
-            result.data[(i, 0)] = rst[0] / rst[2];
-            result.data[(i, 1)] = rst[1] / rst[2];
+            result.data[(i, 0)] = rst[0].clone() / rst[2].clone();
+            result.data[(i, 1)] = rst[1].clone() / rst[2].clone();
         }
         result
     }
@@ -540,7 +576,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         DefaultAllocator: Allocator<R, NPTS, U3>,
         DefaultAllocator: Allocator<R, U1, U2>,
     {
-        let p = self.cache.pnorm;
+        let p = self.cache.pnorm.clone();
 
         let mut result = RayBundle::new_shared_zero_origin(OMatrix::zeros_generic(
             NPTS::from_usize(undistorteds.data.nrows()),
@@ -554,12 +590,16 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
                 data: undistorteds.data.row(i),
             };
 
-            let uv_rect_x = undistorted.data[(0, 0)];
-            let uv_rect_y = undistorted.data[(0, 1)];
+            let uv_rect_x = undistorted.data[(0, 0)].clone();
+            let uv_rect_y = undistorted.data[(0, 1)].clone();
 
             // Convert undistorted point into camcoords.
-            let y = (uv_rect_y - p[(1, 2)] - p[(1, 3)]) / p[(1, 1)];
-            let x = (uv_rect_x - p[(0, 1)] * y - p[(0, 2)] - p[(0, 3)]) / p[(0, 0)];
+            let y = (uv_rect_y.clone() - p[(1, 2)].clone() - p[(1, 3)].clone()) / p[(1, 1)].clone();
+            let x = (uv_rect_x.clone()
+                - p[(0, 1)].clone() * y.clone()
+                - p[(0, 2)].clone()
+                - p[(0, 3)].clone())
+                / p[(0, 0)].clone();
             let z = one();
 
             result.data[(i, 0)] = x;
@@ -593,14 +633,13 @@ impl<R: RealField> Distortion<R> {
     /// Construct a zero distortion model.
     #[inline]
     pub fn zero() -> Self {
-        let z = zero();
-        Distortion(Vector5::new(z, z, z, z, z))
+        Distortion(Vector5::new(zero(), zero(), zero(), zero(), zero()))
     }
 
     /// The first radial distortion term, sometimes called `k1`.
     #[inline]
     pub fn radial1(&self) -> R {
-        self.0[0]
+        self.0[0].clone()
     }
 
     /// The first radial distortion term, sometimes called `k1` (mutable reference).
@@ -612,7 +651,7 @@ impl<R: RealField> Distortion<R> {
     /// The second radial distortion term, sometimes called `k2`.
     #[inline]
     pub fn radial2(&self) -> R {
-        self.0[1]
+        self.0[1].clone()
     }
 
     /// The second radial distortion term, sometimes called `k2` (mutable reference).
@@ -624,7 +663,7 @@ impl<R: RealField> Distortion<R> {
     /// The first tangential distortion term, sometimes called `p1`.
     #[inline]
     pub fn tangential1(&self) -> R {
-        self.0[2]
+        self.0[2].clone()
     }
 
     /// The first tangential distortion term, sometimes called `p1` (mutable reference).
@@ -636,7 +675,7 @@ impl<R: RealField> Distortion<R> {
     /// The second tangential distortion term, sometimes called `p2`.
     #[inline]
     pub fn tangential2(&self) -> R {
-        self.0[3]
+        self.0[3].clone()
     }
 
     /// The second tangential distortion term, sometimes called `p2` (mutable reference).
@@ -648,7 +687,7 @@ impl<R: RealField> Distortion<R> {
     /// The third radial distortion term, sometimes called `k3`.
     #[inline]
     pub fn radial3(&self) -> R {
-        self.0[4]
+        self.0[4].clone()
     }
 
     /// The third radial distortion term, sometimes called `k3` (mutable reference).
@@ -659,7 +698,7 @@ impl<R: RealField> Distortion<R> {
 
     /// Return `true` if there is approximately zero distortion, else `false`.
     pub fn is_linear(&self) -> bool {
-        let v = self.0;
+        let v = &self.0;
         let sum_squared = v.dot(&v);
         sum_squared < nalgebra::convert(1e-16)
     }
