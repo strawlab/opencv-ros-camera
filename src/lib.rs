@@ -692,7 +692,7 @@ impl<R: RealField> Distortion<R> {
     /// Return `true` if there is approximately zero distortion, else `false`.
     pub fn is_linear(&self) -> bool {
         let v = &self.0;
-        let sum_squared = v.dot(&v);
+        let sum_squared = v.dot(v);
         sum_squared < nalgebra::convert(1e-16)
     }
 }
@@ -755,7 +755,7 @@ impl<R: RealField> CameraExt<R> for cam_geom::Camera<R, RosOpenCvIntrinsics<R>> 
         DefaultAllocator: Allocator<R, NPTS, U3>,
         DefaultAllocator: Allocator<R, NPTS, U2>,
     {
-        let camera_frame = self.extrinsics().world_to_camera(&world);
+        let camera_frame = self.extrinsics().world_to_camera(world);
         self.intrinsics().camera_to_undistorted_pixel(&camera_frame)
     }
 }
