@@ -31,6 +31,7 @@ use serde::{Deserialize, Serialize};
 /// serializer rather than using the ROS message type
 /// [`sensor_msgs/CameraInfo`](http://docs.ros.org/melodic/api/sensor_msgs/html/msg/CameraInfo.html).)
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct RosCameraInfo<R: RealField> {
     /// The width of the image sensor (in pixels).
     pub image_width: usize,
@@ -80,6 +81,7 @@ impl<R: RealField> From<NamedIntrinsicParameters<R>> for RosCameraInfo<R> {
 /// specifically as the type of fields within the
 /// [`RosCameraInfo`](struct.RosCameraInfo.html) struct.
 #[cfg_attr(feature = "serde-serialize", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
 pub struct RosMatrix<R: RealField> {
     /// Number of rows in the matrix.
     pub rows: usize,
@@ -165,6 +167,7 @@ where
 /// field.
 ///
 /// See the [module-level documentation for more information](index.html).
+#[derive(Debug, Clone)]
 pub struct NamedIntrinsicParameters<R: RealField> {
     /// Name of the camera.
     pub name: String,
