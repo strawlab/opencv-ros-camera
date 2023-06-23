@@ -134,13 +134,13 @@ where
     DefaultAllocator: Allocator<R, D2, D2>,
     DefaultAllocator: Allocator<R, D2>,
 {
-    if ros_matrix.rows as usize != D1::dim() {
+    if ros_matrix.rows != D1::dim() {
         return Err(Error::BadMatrixSize);
     }
-    if ros_matrix.cols as usize != D2::dim() {
+    if ros_matrix.cols != D2::dim() {
         return Err(Error::BadMatrixSize);
     }
-    if ros_matrix.data.len() != (ros_matrix.rows * ros_matrix.cols) as usize {
+    if ros_matrix.data.len() != (ros_matrix.rows * ros_matrix.cols) {
         return Err(Error::BadMatrixSize);
     }
     let data_converted: Vec<R> = ros_matrix
