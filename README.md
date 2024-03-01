@@ -13,7 +13,7 @@ Geometric models of OpenCV/ROS cameras for photogrammetry
 This crate provides a geometric model of a camera compatible with OpenCV as
 used by ROS (the Robot Operating System). The crate is in pure Rust, can be
 compiled in `no_std` mode, implements the
-[`IntrinsicsParameters`](https://docs.rs/cam-geom/latest/cam_geom/trait.IntrinsicParameters.html)
+[`IntrinsicParameters`](https://docs.rs/cam-geom/latest/cam_geom/trait.IntrinsicParameters.html)
 trait from the [`cam-geom`](https://crates.io/crates/cam-geom) and provides
 support to read and write camera models in various formats.
 
@@ -31,7 +31,7 @@ In greater detail:
 - Can be compiled without the Rust standard library or allocator to support
   embedded applications.
 - The [`RosOpenCvIntrinsics`](struct.RosOpenCvIntrinsics.html) type
-  implements [the `IntrinsicsParameters` trait from the `cam-geom`
+  implements [the `IntrinsicParameters` trait from the `cam-geom`
   crate](https://docs.rs/cam-geom/latest/cam_geom/trait.IntrinsicParameters.html).
   Thus, a
   [`cam_geom::Camera`](https://docs.rs/cam-geom/latest/cam_geom/struct.Camera.html)
