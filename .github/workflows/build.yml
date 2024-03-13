@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build
     - name: Run tests
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install ARM target
       run: rustup target add thumbv7em-none-eabihf
     - name: Build
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Build
       run: cargo build --features serde-serialize
     - name: Run tests
