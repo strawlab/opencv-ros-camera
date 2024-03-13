@@ -40,7 +40,12 @@ default = ["std"]
 # - nalgebra/serde-serialize requires std (as of nalgebra 0.20)
 
 std = ["nalgebra/std", "cam-geom/std", "thiserror"]
-serde-serialize = ["std", "serde", "serde_yaml", "nalgebra/serde-serialize"]
+serde-serialize = [
+    "std",
+    "dep:serde",
+    "dep:serde_yaml",
+    "nalgebra/serde-serialize",
+]
 
 [package.metadata.docs.rs]
 features = ["serde-serialize"]
