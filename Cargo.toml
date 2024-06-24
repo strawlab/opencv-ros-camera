@@ -17,7 +17,7 @@ categories = [
 ]
 
 [dependencies]
-nalgebra = { version = "0.32.1", default-features = false, features = ["libm"] }
+nalgebra = { version = "0.33.0", default-features = false, features = ["libm"] }
 cam-geom = { version = "0.14.0", default-features = false }
 
 serde = { version = "1.0", default-features = false, features = [
