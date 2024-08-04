@@ -322,7 +322,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     where
         NPTS: Dim,
         IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
     {
         let mut result = Pixels::new(OMatrix::zeros_generic(
             NPTS::from_usize(undistorted.data.nrows()),
@@ -403,7 +403,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     where
         NPTS: Dim,
         IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
     {
         self.undistort_ext(distorted, None)
     }
@@ -426,7 +426,7 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     where
         NPTS: Dim,
         IN: nalgebra::base::storage::Storage<R, NPTS, U2>,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
     {
         let criteria = criteria.into().unwrap_or(TermCriteria::MaxIter(5));
         let mut result = UndistortedPixels {
@@ -535,8 +535,8 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     where
         IN: Storage<R, NPTS, U3>,
         NPTS: Dim,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
-        DefaultAllocator: Allocator<R, U1, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
+        DefaultAllocator: Allocator<U1, U2>,
     {
         let mut result = UndistortedPixels {
             data: OMatrix::zeros_generic(NPTS::from_usize(camera.data.nrows()), U2::from_usize(2)),
@@ -566,8 +566,8 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
     where
         IN: Storage<R, NPTS, U2>,
         NPTS: Dim,
-        DefaultAllocator: Allocator<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, U1, U2>,
+        DefaultAllocator: Allocator<NPTS, U3>,
+        DefaultAllocator: Allocator<U1, U2>,
     {
         let p = self.cache.pnorm.clone();
 
@@ -708,9 +708,9 @@ impl<R: RealField> IntrinsicParameters<R> for RosOpenCvIntrinsics<R> {
         Self::BundleType: Bundle<R>,
         IN: Storage<R, NPTS, U2>,
         NPTS: Dim,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
-        DefaultAllocator: Allocator<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, U1, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U3>,
+        DefaultAllocator: Allocator<U1, U2>,
     {
         let undistorted = self.undistort::<NPTS, IN>(pixels);
         self.undistorted_pixel_to_camera(&undistorted)
@@ -723,7 +723,7 @@ impl<R: RealField> IntrinsicParameters<R> for RosOpenCvIntrinsics<R> {
     where
         IN: Storage<R, NPTS, U3>,
         NPTS: Dim,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U2>,
     {
         let undistorted = self.camera_to_undistorted_pixel(camera);
         self.distort(&undistorted)
@@ -740,8 +740,8 @@ pub trait CameraExt<R: RealField> {
     where
         NPTS: Dim,
         InStorage: Storage<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, NPTS, U2>;
+        DefaultAllocator: Allocator<NPTS, U3>,
+        DefaultAllocator: Allocator<NPTS, U2>;
 }
 
 impl<R: RealField> CameraExt<R> for cam_geom::Camera<R, RosOpenCvIntrinsics<R>> {
@@ -752,8 +752,8 @@ impl<R: RealField> CameraExt<R> for cam_geom::Camera<R, RosOpenCvIntrinsics<R>> 
     where
         NPTS: Dim,
         InStorage: Storage<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, NPTS, U3>,
-        DefaultAllocator: Allocator<R, NPTS, U2>,
+        DefaultAllocator: Allocator<NPTS, U3>,
+        DefaultAllocator: Allocator<NPTS, U2>,
     {
         let camera_frame = self.extrinsics().world_to_camera(world);
         self.intrinsics().camera_to_undistorted_pixel(&camera_frame)
