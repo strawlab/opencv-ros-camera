@@ -93,13 +93,13 @@ pub struct RosMatrix<R: RealField> {
 
 fn to_ros<R: RealField, SS: DimName, OS: DimName>(arr: na::OMatrix<R, SS, OS>) -> RosMatrix<R>
 where
-    DefaultAllocator: Allocator<R, SS, SS>,
-    DefaultAllocator: Allocator<R, SS>,
-    DefaultAllocator: Allocator<R, OS, SS>,
-    DefaultAllocator: Allocator<R, SS, OS>,
-    DefaultAllocator: Allocator<R, OS, OS>,
-    DefaultAllocator: Allocator<R, OS>,
-    DefaultAllocator: Allocator<(usize, usize), OS>,
+    DefaultAllocator: Allocator<SS, SS>,
+    DefaultAllocator: Allocator<SS>,
+    DefaultAllocator: Allocator<OS, SS>,
+    DefaultAllocator: Allocator<SS, OS>,
+    DefaultAllocator: Allocator<OS, OS>,
+    DefaultAllocator: Allocator<OS>,
+    DefaultAllocator: Allocator<OS>,
     OS: DimMin<OS, Output = OS>,
 {
     // need to transpose the data since na is column major and ros is row major.
@@ -127,12 +127,12 @@ where
     R: RealField,
     D1: DimName,
     D2: DimName,
-    DefaultAllocator: Allocator<R, D1, D1>,
-    DefaultAllocator: Allocator<R, D1>,
-    DefaultAllocator: Allocator<R, D2, D1>,
-    DefaultAllocator: Allocator<R, D1, D2>,
-    DefaultAllocator: Allocator<R, D2, D2>,
-    DefaultAllocator: Allocator<R, D2>,
+    DefaultAllocator: Allocator<D1, D1>,
+    DefaultAllocator: Allocator<D1>,
+    DefaultAllocator: Allocator<D2, D1>,
+    DefaultAllocator: Allocator<D1, D2>,
+    DefaultAllocator: Allocator<D2, D2>,
+    DefaultAllocator: Allocator<D2>,
 {
     if ros_matrix.rows != D1::dim() {
         return Err(Error::BadMatrixSize);
