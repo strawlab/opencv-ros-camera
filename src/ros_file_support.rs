@@ -91,7 +91,7 @@ pub struct RosMatrix<R: RealField> {
     pub data: Vec<R>,
 }
 
-fn to_ros<R: RealField, SS: DimName, OS: DimName>(arr: na::OMatrix<R, SS, OS>) -> RosMatrix<R>
+fn to_ros<R: RealField, SS: DimName, OS>(arr: na::OMatrix<R, SS, OS>) -> RosMatrix<R>
 where
     DefaultAllocator: Allocator<SS, SS>,
     DefaultAllocator: Allocator<SS>,
@@ -100,7 +100,7 @@ where
     DefaultAllocator: Allocator<OS, OS>,
     DefaultAllocator: Allocator<OS>,
     DefaultAllocator: Allocator<OS>,
-    OS: DimMin<OS, Output = OS>,
+    OS: DimName + DimMin<OS, Output = OS>,
 {
     // need to transpose the data since na is column major and ros is row major.
     let a2 = arr.transpose();
