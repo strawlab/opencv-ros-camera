@@ -601,6 +601,43 @@ impl<R: RealField> RosOpenCvIntrinsics<R> {
         }
         result
     }
+
+    /// Return the horizontal focal length
+    #[inline]
+    pub fn fx(&self) -> R {
+        self.p[(0, 0)].clone()
+    }
+
+    /// Return the vertical focal length
+    #[inline]
+    pub fn fy(&self) -> R {
+        self.p[(1, 1)].clone()
+    }
+
+    /// Return the skew
+    #[inline]
+    pub fn skew(&self) -> R {
+        self.p[(0, 1)].clone()
+    }
+
+    /// Return the horizontal center
+    #[inline]
+    pub fn cx(&self) -> R {
+        self.p[(0, 2)].clone()
+    }
+
+    /// Return the vertical center
+    #[inline]
+    pub fn cy(&self) -> R {
+        self.p[(1, 2)].clone()
+    }
+}
+
+#[test]
+fn intrinsics_roundtrip() {
+    let i = RosOpenCvIntrinsics::from_params(1.0, 2.0, 3.0, 4.0, 5.0);
+    let i2 = RosOpenCvIntrinsics::from_params(i.fx(), i.skew(), i.fy(), i.cx(), i.cy());
+    assert_eq!(i, i2);
 }
 
 /// Specifies distortion using the Brown-Conrady "plumb bob" model.
