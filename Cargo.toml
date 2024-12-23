@@ -2,7 +2,7 @@
 name = "opencv-ros-camera"
 version = "0.15.1"
 authors = ["Andrew Straw <strawman@astraw.com>"]
-edition = "2018"
+edition = "2021"
 description = "Geometric models of OpenCV/ROS cameras for photogrammetry"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
@@ -15,6 +15,7 @@ categories = [
     "science",
     "science::robotics",
 ]
+rust-version = "1.65"
 
 [dependencies]
 nalgebra = { version = "0.33.0", default-features = false, features = ["libm"] }
