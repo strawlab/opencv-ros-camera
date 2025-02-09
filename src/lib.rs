@@ -192,7 +192,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// field.
 ///
 /// See the [module-level documentation for more information](index.html).
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct RosOpenCvIntrinsics<R: RealField> {
     /// If these intrinsics have zero skew, they are "opencv compatible" and this is `true`.
     pub is_opencv_compatible: bool,
@@ -205,6 +205,16 @@ pub struct RosOpenCvIntrinsics<R: RealField> {
     /// The stereo rectification matrix.
     pub rect: SMatrix<R, 3, 3>,
     cache: Cache<R>,
+}
+
+impl<R: RealField> std::fmt::Debug for RosOpenCvIntrinsics<R> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("RosOpenCvIntrinsics")
+            .field("p", &self.p)
+            .field("distortion", &self.distortion)
+            .field("rect", &self.rect)
+            .finish()
+    }
 }
 
 impl<R: RealField> From<cam_geom::IntrinsicParametersPerspective<R>> for RosOpenCvIntrinsics<R> {
