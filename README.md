@@ -102,28 +102,19 @@ let pose = cam_geom::ExtrinsicParameters::from_view(&camcenter, &lookat, &up);
 
 Test `no_std` compilation with:
 
-```
+```notest
 # install target with: "rustup target add thumbv7em-none-eabihf"
 cargo check --no-default-features --target thumbv7em-none-eabihf
 ```
 
 Run unit tests with:
 
-```
+```notest
 cargo test
 cargo test --features serde-serialize
 ```
 
 serde support requires std.
-
-## re-render README.md
-
-```
-cargo install cargo-readme
-cargo readme > README.md
-```
-
-==========================================================
 
 ## Code of conduct
 
@@ -136,6 +127,6 @@ conduct](code_of_conduct.md).
 Licensed under either of these:
 
  * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or
-   https://www.apache.org/licenses/LICENSE-2.0)
+   <https://www.apache.org/licenses/LICENSE-2.0>)
  * MIT license ([LICENSE-MIT](LICENSE-MIT) or
-   https://opensource.org/licenses/MIT)
+   <https://opensource.org/licenses/MIT>)
