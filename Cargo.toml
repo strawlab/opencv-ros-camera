@@ -1,6 +1,6 @@
 [package]
 name = "opencv-ros-camera"
-version = "0.15.2"
+version = "0.16.0"
 authors = ["Andrew Straw <strawman@astraw.com>"]
 edition = "2021"
 description = "Geometric models of OpenCV/ROS cameras for photogrammetry"
