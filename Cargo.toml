@@ -40,10 +40,11 @@ default = ["std"]
 std = ["nalgebra/std", "cam-geom/std", "thiserror"]
 serde-serialize = [
     "std",
-    "dep:serde",
+    "serde-pod",
     "dep:serde_yaml",
     "nalgebra/serde-serialize",
 ]
+serde-pod = ["dep:serde"]
 
 [package.metadata.docs.rs]
 features = ["serde-serialize"]

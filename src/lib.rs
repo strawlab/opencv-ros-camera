@@ -28,6 +28,9 @@ pub use ros_file_support::{NamedIntrinsicParameters, RosCameraInfo, RosMatrix};
 #[cfg(feature = "serde-serialize")]
 pub use ros_file_support::from_ros_yaml;
 
+mod pod;
+pub use pod::{RosOpenCvIntrinsicsPod, RosOpenCvIntrinsicsPodF32, RosOpenCvIntrinsicsPodF64};
+
 /// Possible errors.
 #[derive(Debug)]
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
